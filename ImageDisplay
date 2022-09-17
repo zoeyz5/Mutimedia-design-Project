@@ -327,23 +327,23 @@ public class ImageDisplay {
 	}
    
 	 public static double RGBtoU(int r, int g, int b) {
-		return (0.436*b - (0.147*r) - (0.289*g));
+		return (0.596*r - 0.274*g - 0.322*b);
 	 }
 	 
 	 public static double RGBtoV(int r, int g, int b) {
- 		return (0.615*r - (0.515*g) - (0.100*b));
+ 		return (0.211*r - 0.523*g + 0.312*b);
 	 }
 	 
 	 public static double YUVtoR(double y, double u, double v){
-		return (0.999*y + 1.140*v);
+		return (y + 0.956*u + 0.621*v);
 	 }
 	 
 	 public static double YUVtoG(double y, double u, double v) {
-		return (y - 0.395*u - 0.581*v);
+		return (y - 0.272*u - 0.647*v);
 	 }
 	 
 	 public static double YUVtoB(double y, double u, double v) {
-		return (y + 2.032*u);
+		return (y - 1.106*u + 1.703*v);
 	 }
 
 	public static void main(String[] args) {
