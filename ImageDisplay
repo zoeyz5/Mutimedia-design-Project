@@ -8,6 +8,7 @@ import javax.swing.*;
 public class ImageDisplay {
 
 	JFrame frame;
+	JFrame frame2;
 	JLabel lbIm1;
 	JLabel lbIm2;
 	BufferedImage imgOne;
@@ -50,18 +51,21 @@ public class ImageDisplay {
 				for(int x = 0; x < width; x++)
 				{
 					byte a = 0;
+
 					byte r = bytes[ind];
 					if(r<0) {
 						imageCopy[(y*width+ x)*3] = r+256;
 					} else {
 						imageCopy[(y*width + x)*3] = r;
 					}
+
 					byte g = bytes[ind+height*width];
 					if(g<0) {
 						imageCopy[(y*width + x)*3 + 1] = g+256;
 					} else {
 						imageCopy[(y*width + x)*3 + 1] = g;
 					}
+
 					byte b = bytes[ind+height*width*2]; 
 					if(b<0) {
 						imageCopy[(y*width + x)*3 + 2] = b+256;
@@ -119,8 +123,10 @@ public class ImageDisplay {
 
 		// Use label to display the image
 		frame = new JFrame();
+		frame2 = new JFrame();
 		GridBagLayout gLayout = new GridBagLayout();
 		frame.getContentPane().setLayout(gLayout);
+		frame2.getContentPane().setLayout(gLayout);
 
 		lbIm1 = new JLabel(new ImageIcon(imgOne));
 		lbIm2 = new JLabel(new ImageIcon(imgThree));
@@ -146,10 +152,13 @@ public class ImageDisplay {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 1;
-		frame.getContentPane().add(lbIm2, c);
+		frame2.getContentPane().add(lbIm2, c);
 
 		frame.pack();
 		frame.setVisible(true);
+
+		frame2.pack();
+		frame2.setVisible(true);
 	}
 
 	public void YUVtoRGB(){
