@@ -11,10 +11,10 @@ public class ImageDisplay {
 	JLabel lbIm1;
 	JLabel lbIm2;
 	BufferedImage imgOne;
-	BufferedImage imgTwo = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	BufferedImage imgTwo = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	BufferedImage imgThree;
-	static int width = 1920; // default image width and height
-	static int height = 1080;
+	static int WIDTH = 1920; // default image width and height
+	static int HEIGHT = 1080;
     static int Y;
     static int U;
     static int V;
@@ -22,8 +22,8 @@ public class ImageDisplay {
 	static float h;
     static int A;
 
-	static int imageCopy[] = new int[3*width*height];
-    static double yuvImage[] = new double[3*width*height];
+	static int imageCopy[] = new int[3*WIDTH*HEIGHT];
+    static double yuvImage[] = new double[3*WIDTH*HEIGHT];
 
 	/** Read Image RGB
 	 *  Reads the image of given width and height at the given imgPath into the provided BufferedImage.
@@ -107,18 +107,57 @@ public class ImageDisplay {
 		A = Integer.parseInt(args[6]);
 
 		// Read in the specified image
-		imgOne = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		readImageRGB(width, height, args[0], imgOne);
+		imgOne = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		readImageRGB(WIDTH, HEIGHT, args[0], imgOne);
 
 		//calculate new YUV
 		upSample();
 
+		YUVtoRGB();
 
-		for(int y = 0; y < height; y++){
+		scale(w,h);
+
+		// Use label to display the image
+		frame = new JFrame();
+		GridBagLayout gLayout = new GridBagLayout();
+		frame.getContentPane().setLayout(gLayout);
+
+		lbIm1 = new JLabel(new ImageIcon(imgOne));
+		lbIm2 = new JLabel(new ImageIcon(imgThree));
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
+		c.weightx = 0.5;
+		c.gridx = 1;
+		c.gridy = 0;
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 1;
+		frame.getContentPane().add(lbIm1, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 1;
+		frame.getContentPane().add(lbIm2, c);
+
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	public void YUVtoRGB(){
+		for(int y = 0; y < HEIGHT; y++){
            
-			for(int x = 0; x < width; x++){
+			for(int x = 0; x < WIDTH; x++){
 				
-				int i = y*width + x;
+				int i = y*WIDTH + x;
 				
 				byte r, g, b;
 				//calculate rgb value from yuv value
@@ -170,90 +209,50 @@ public class ImageDisplay {
 				imgTwo.setRGB(x,y,pix);
 			}
 		}
-
-		scale(w,h);
-
-		// Use label to display the image
-		frame = new JFrame();
-		GridBagLayout gLayout = new GridBagLayout();
-		frame.getContentPane().setLayout(gLayout);
-
-		JLabel lbText1 = new JLabel("Original image (Left)");
-		lbText1.setHorizontalAlignment(SwingConstants.CENTER);
-		JLabel lbText2 = new JLabel("Image after modification (Right)");
-		lbText2.setHorizontalAlignment(SwingConstants.CENTER);
-		lbIm1 = new JLabel(new ImageIcon(imgOne));
-		lbIm2 = new JLabel(new ImageIcon(imgThree));
-
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.CENTER;
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.CENTER;
-		c.weightx = 0.5;
-		c.gridx = 1;
-		c.gridy = 0;
-
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 1;
-		frame.getContentPane().add(lbIm1, c);
-
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 1;
-		frame.getContentPane().add(lbIm2, c);
-
-		frame.pack();
-		frame.setVisible(true);
 	}
 
 	public static void upSample() {
-        for(int y = 0; y < height; y++){
+        for(int y = 0; y < HEIGHT; y++){
             if(Y > 1) {
                 int x;
-                for(x = 0; x < width - Y; x+=Y){
+                for(x = 0; x < WIDTH - Y; x+=Y){
                     //set values between x to x+Y to be the average of two
                     //remained values
                     for(int z=x+1; z<x+Y; z++) {
-                        yuvImage[3*(width*y + z)] = (yuvImage[3*(width*y + x)] + yuvImage[3*(width*y + x+Y)])/2;
+                        yuvImage[3*(WIDTH*y + z)] = (yuvImage[3*(WIDTH*y + x)] + yuvImage[3*(WIDTH*y + x+Y)])/2;
                     }
                 }
                 x++;
                 //note here for the last period of values
                 //we set them to be the start remained value
-                for(;x<width; x++) {
-                    yuvImage[3*(width*y + x)] = yuvImage[3*(width*y + width - Y)];
+                for(;x<WIDTH; x++) {
+                    yuvImage[3*(WIDTH*y + x)] = yuvImage[3*(WIDTH*y + WIDTH - Y)];
                 }
             }
             
             if(U > 1) {
                 int x;
-                for(x = 0; x < width - U; x+=U){
+                for(x = 0; x < WIDTH - U; x+=U){
                     for(int z=x+1; z<x+U; z++) {
-                        yuvImage[3*(width*y + z) + 1] = (yuvImage[3*(width*y + x) + 1] + yuvImage[3*(width*y + x+U) + 1])/2;
+                        yuvImage[3*(WIDTH*y + z) + 1] = (yuvImage[3*(WIDTH*y + x) + 1] + yuvImage[3*(WIDTH*y + x+U) + 1])/2;
                     }
                 }
                 x++;
-                for(;x<width; x++) {
-                    yuvImage[3*(width*y + x) + 1] = yuvImage[3*(width*y + width - U) + 1];
+                for(;x<WIDTH; x++) {
+                    yuvImage[3*(WIDTH*y + x) + 1] = yuvImage[3*(WIDTH*y + WIDTH - U) + 1];
                 }
             }
             
             if(V > 1) {
                 int x;
-                for(x = 0; x < width - V; x+=V){
+                for(x = 0; x < WIDTH - V; x+=V){
                     for(int z=x+1; z<x+V; z++) {
-                        yuvImage[3*(width*y + z) + 2] = (yuvImage[3*(width*y + x) + 2] + yuvImage[3*(width*y + x+V) + 2])/2;
+                        yuvImage[3*(WIDTH*y + z) + 2] = (yuvImage[3*(WIDTH*y + x) + 2] + yuvImage[3*(WIDTH*y + x+V) + 2])/2;
                     }
                 }
                 x++;
-                for(;x<width; x++) {
-                    yuvImage[3*(width*y + x) + 2] = yuvImage[3*(width*y + width - V) + 2];
+                for(;x<WIDTH; x++) {
+                    yuvImage[3*(WIDTH*y + x) + 2] = yuvImage[3*(WIDTH*y + WIDTH - V) + 2];
                 }
             }
         }
@@ -271,10 +270,10 @@ public class ImageDisplay {
 
 				int mapping_x=(int)Math.round(x/scalew);
 				int mapping_y=(int)Math.round(y/scaleh);
-				if (mapping_x==width){
+				if (mapping_x==WIDTH){
 					mapping_x--;
 				}
-				if (mapping_y==height){
+				if (mapping_y==HEIGHT){
 					mapping_y--;
 				}
 				if (A==0){
@@ -304,8 +303,8 @@ public class ImageDisplay {
 		for (int i=-3;i<4;i++){
 			for (int j=-3;j<4;j++){
 
-				if (x+i>=0 && x+i<width){
-					if (y+j>=0 && y+j<height){
+				if (x+i>=0 && x+i<WIDTH){
+					if (y+j>=0 && y+j<HEIGHT){
 						tmp_rgb=imgTwo.getRGB(x+i,y+j);
 						tmp_b+=tmp_rgb & 0xff;
 						tmp_g+=tmp_rgb >> 8 & 0xff;
