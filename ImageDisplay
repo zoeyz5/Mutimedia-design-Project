@@ -14,8 +14,10 @@ public class ImageDisplay {
 	BufferedImage imgOne;
 	BufferedImage imgTwo = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	BufferedImage imgThree;
+
 	static int WIDTH = 1920; // default image width and height
 	static int HEIGHT = 1080;
+
     static int Y;
     static int U;
     static int V;
@@ -23,7 +25,7 @@ public class ImageDisplay {
 	static float h;
     static int A;
 
-	static int imageCopy[] = new int[3*WIDTH*HEIGHT];
+	static int rgbImage[] = new int[3*WIDTH*HEIGHT];
     static double yuvImage[] = new double[3*WIDTH*HEIGHT];
 
 	/** Read Image RGB
@@ -45,32 +47,30 @@ public class ImageDisplay {
 			raf.read(bytes);
 
 			int ind = 0;
-
 			for(int y = 0; y < height; y++)
 			{
 				for(int x = 0; x < width; x++)
 				{
-					byte a = 0;
-
+					//byte a = 0;
 					byte r = bytes[ind];
 					if(r<0) {
-						imageCopy[(y*width+ x)*3] = r+256;
+						rgbImage[(y*width+ x)*3] = r+256;
 					} else {
-						imageCopy[(y*width + x)*3] = r;
+						rgbImage[(y*width + x)*3] = r;
 					}
 
 					byte g = bytes[ind+height*width];
 					if(g<0) {
-						imageCopy[(y*width + x)*3 + 1] = g+256;
+						rgbImage[(y*width + x)*3 + 1] = g+256;
 					} else {
-						imageCopy[(y*width + x)*3 + 1] = g;
+						rgbImage[(y*width + x)*3 + 1] = g;
 					}
 
 					byte b = bytes[ind+height*width*2]; 
 					if(b<0) {
-						imageCopy[(y*width + x)*3 + 2] = b+256;
+						rgbImage[(y*width + x)*3 + 2] = b+256;
 					} else {
-						imageCopy[(y*width + x)*3 + 2] = b;
+						rgbImage[(y*width + x)*3 + 2] = b;
 					}
 
 					int pix = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
@@ -78,14 +78,15 @@ public class ImageDisplay {
 					img.setRGB(x,y,pix);
 
 					//convert to YUV
-					double changedY = RGBtoY(imageCopy[(y*width + x)*3], imageCopy[(y*width + x)*3 + 1], imageCopy[(y*width + x)*3 + 2]);
+					double changedY = RGBtoY(rgbImage[(y*width + x)*3], rgbImage[(y*width + x)*3 + 1], rgbImage[(y*width + x)*3 + 2]);
 					yuvImage[(y*width + x)*3] = changedY;
 					
-					double changedU = RGBtoU(imageCopy[(y*width + x)*3], imageCopy[(y*width + x)*3 + 1], imageCopy[(y*width + x)*3 + 2]);
+					double changedU = RGBtoU(rgbImage[(y*width + x)*3], rgbImage[(y*width + x)*3 + 1], rgbImage[(y*width + x)*3 + 2]);
 					yuvImage[(y*width + x)*3+1] = changedU;
 					
-					double changedV = RGBtoV(imageCopy[(y*width + x)*3], imageCopy[(y*width + x)*3 + 1], imageCopy[(y*width + x)*3 + 2]);
+					double changedV = RGBtoV(rgbImage[(y*width + x)*3], rgbImage[(y*width + x)*3 + 1], rgbImage[(y*width + x)*3 + 2]);
 					yuvImage[(y*width + x)*3+2] = changedV;
+
 					ind++;
 				}
 			}
@@ -132,17 +133,6 @@ public class ImageDisplay {
 		lbIm2 = new JLabel(new ImageIcon(imgThree));
 
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.CENTER;
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.CENTER;
-		c.weightx = 0.5;
-		c.gridx = 1;
-		c.gridy = 0;
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -169,48 +159,45 @@ public class ImageDisplay {
 				int i = y*WIDTH + x;
 				
 				byte r, g, b;
-				//calculate rgb value from yuv value
-				//take round
-				//then eliminate data that smaller than 0 or larger than 255
-				imageCopy[3*i] = (int)Math.rint(YUVtoR(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
-				if(imageCopy[3*i] < 0) {
-					imageCopy[3*i] = 0;
-				} else if(imageCopy[3*i] > 255) {
-					imageCopy[3*i] = 255;
+				//eliminate data that smaller than 0 or larger than 255
+				rgbImage[3*i] = (int)Math.rint(YUVtoR(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
+				if(rgbImage[3*i] < 0) {
+					rgbImage[3*i] = 0;
+				} else if(rgbImage[3*i] > 255) {
+					rgbImage[3*i] = 255;
 				}
 				
-				imageCopy[3*i +1] = (int)Math.rint(YUVtoG(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
-				if(imageCopy[3*i + 1] < 0) {
-					imageCopy[3*i + 1] = 0;
-				} else if(imageCopy[3*i + 1] > 255) {
-					imageCopy[3*i + 1] = 255;
+				rgbImage[3*i +1] = (int)Math.rint(YUVtoG(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
+				if(rgbImage[3*i + 1] < 0) {
+					rgbImage[3*i + 1] = 0;
+				} else if(rgbImage[3*i + 1] > 255) {
+					rgbImage[3*i + 1] = 255;
 				}
 				
-				imageCopy[3*i +2] = (int)Math.rint(YUVtoB(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
-				if(imageCopy[3*i + 2] < 0) {
-					imageCopy[3*i + 2] = 0;
-				} else if(imageCopy[3*i + 2] > 255) {
-					imageCopy[3*i + 2] = 255;
+				rgbImage[3*i +2] = (int)Math.rint(YUVtoB(yuvImage[3*i], yuvImage[3*i+1], yuvImage[3*i+2]));
+				if(rgbImage[3*i + 2] < 0) {
+					rgbImage[3*i + 2] = 0;
+				} else if(rgbImage[3*i + 2] > 255) {
+					rgbImage[3*i + 2] = 255;
 				}
 		
-				//note here we need transform int data 0-255
-				//to byte data which is -128 to 127
-				if(imageCopy[3*i] > 127) {
-					r = (byte)(imageCopy[3*i] - 256);
+				//eliminate data that smaller than -128 or larger than 127
+				if(rgbImage[3*i] > 127) {
+					r = (byte)(rgbImage[3*i] - 256);
 				} else {
-					r = (byte)imageCopy[3*i];
+					r = (byte)rgbImage[3*i];
 				}
 				
-				if(imageCopy[3*i + 1] > 127) {
-					g = (byte)(imageCopy[3*i + 1] - 256);
+				if(rgbImage[3*i + 1] > 127) {
+					g = (byte)(rgbImage[3*i + 1] - 256);
 				} else {
-					g = (byte)imageCopy[3*i + 1];
+					g = (byte)rgbImage[3*i + 1];
 				}
 				
-				if(imageCopy[3*i + 2] > 127) {
-					b = (byte)(imageCopy[3*i + 2] - 256);
+				if(rgbImage[3*i + 2] > 127) {
+					b = (byte)(rgbImage[3*i + 2] - 256);
 				} else {
-					b = (byte)imageCopy[3*i + 2];
+					b = (byte)rgbImage[3*i + 2];
 				}
 				
 				//set pixel for display output image
@@ -225,15 +212,13 @@ public class ImageDisplay {
             if(Y > 1) {
                 int x;
                 for(x = 0; x < WIDTH - Y; x+=Y){
-                    //set values between x to x+Y to be the average of two
-                    //remained values
+                    //average
                     for(int z=x+1; z<x+Y; z++) {
                         yuvImage[3*(WIDTH*y + z)] = (yuvImage[3*(WIDTH*y + x)] + yuvImage[3*(WIDTH*y + x+Y)])/2;
                     }
                 }
                 x++;
-                //note here for the last period of values
-                //we set them to be the start remained value
+                //remained value
                 for(;x<WIDTH; x++) {
                     yuvImage[3*(WIDTH*y + x)] = yuvImage[3*(WIDTH*y + WIDTH - Y)];
                 }
@@ -270,61 +255,56 @@ public class ImageDisplay {
 	public void scale(float scalew, float scaleh){
 		int new_width = (int)Math.round(1920*scalew);
 		int new_height = (int)Math.round(1080*scaleh);
-		// System.out.println("new_width="+new_width+" new_height="+new_height);
 
 		imgThree = new BufferedImage(new_width, new_height, BufferedImage.TYPE_INT_RGB);
 
 		for (int x=0; x<new_width; x++){
 			for (int y=0; y<new_height; y++){
 
-				int mapping_x=(int)Math.round(x/scalew);
-				int mapping_y=(int)Math.round(y/scaleh);
-				if (mapping_x==WIDTH){
-					mapping_x--;
+				int mapX=(int)Math.round(x/scalew);
+				int mapY=(int)Math.round(y/scaleh);
+				if (mapX==WIDTH){
+					mapX--;
 				}
-				if (mapping_y==HEIGHT){
-					mapping_y--;
+				if (mapY==HEIGHT){
+					mapY--;
 				}
-				if (A==0){
-					imgThree.setRGB(x,y,imgTwo.getRGB(mapping_x,mapping_y));
+				if (A==0){ //no aliasing
+					imgThree.setRGB(x,y,imgTwo.getRGB(mapX,mapY));
 				}
 				else{
-					//anti aliasing by finding adjacent pixels average_rgb
-
-					int average_rgb=0;
-					average_rgb=antiali(mapping_x,mapping_y);
-					imgThree.setRGB(x,y,average_rgb);
+					//anti aliasing 
+					int averaged_rgb=0;
+					averaged_rgb=antiali(mapX,mapY);
+					imgThree.setRGB(x,y,averaged_rgb);
 				}
 			}
 		}
 	}
 
 	public int antiali(int x,int y){
-		// int[] tmp_x_array=new int[3];
-		// int[] tmp_y_array=new int[3];
-		// System.out.println("x:"+(x)+" y:"+(y));
 		int counter=0;
-		int tmp_rgb=0;
-		int tmp_r=0;
-		int tmp_g=0;
-		int tmp_b=0;
+		int tmpRGB=0;
+		int tmpR=0;
+		int tmpG=0;
+		int tmpB=0;
 
-		for (int i=-3;i<4;i++){
-			for (int j=-3;j<4;j++){
+		for (int i=-3;i<=3;i++){
+			for (int j=-3;j<=3;j++){
 
 				if (x+i>=0 && x+i<WIDTH){
 					if (y+j>=0 && y+j<HEIGHT){
-						tmp_rgb=imgTwo.getRGB(x+i,y+j);
-						tmp_b+=tmp_rgb & 0xff;
-						tmp_g+=tmp_rgb >> 8 & 0xff;
-						tmp_r+=tmp_rgb >> 16 & 0xff;
+						tmpRGB=imgTwo.getRGB(x+i,y+j);
+						tmpB+=tmpRGB & 0xff;
+						tmpG+=tmpRGB >> 8 & 0xff;
+						tmpR+=tmpRGB >> 16 & 0xff;
 
 						counter++;
 					}
 				}
 			}
 		}
-		int pix = 0xff000000 | ((tmp_r/counter & 0xff) << 16) | ((tmp_g/counter & 0xff) << 8) | (tmp_b/counter & 0xff);
+		int pix = 0xff000000 | ((tmpR/counter & 0xff) << 16) | ((tmpG/counter & 0xff) << 8) | (tmpB/counter & 0xff);
 
 
 		return pix;
@@ -335,23 +315,23 @@ public class ImageDisplay {
 		return (0.299*r + 0.587*g + 0.114*b);
 	}
    
-	 public static double RGBtoU(int r, int g, int b) {
+	public static double RGBtoU(int r, int g, int b) {
 		return (0.596*r - 0.274*g - 0.322*b);
 	 }
 	 
-	 public static double RGBtoV(int r, int g, int b) {
+	public static double RGBtoV(int r, int g, int b) {
  		return (0.211*r - 0.523*g + 0.312*b);
 	 }
 	 
-	 public static double YUVtoR(double y, double u, double v){
+	public static double YUVtoR(double y, double u, double v){
 		return (y + 0.956*u + 0.621*v);
 	 }
 	 
-	 public static double YUVtoG(double y, double u, double v) {
+	public static double YUVtoG(double y, double u, double v) {
 		return (y - 0.272*u - 0.647*v);
 	 }
 	 
-	 public static double YUVtoB(double y, double u, double v) {
+	public static double YUVtoB(double y, double u, double v) {
 		return (y - 1.106*u + 1.703*v);
 	 }
 
