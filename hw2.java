@@ -121,6 +121,10 @@ public class ImageDisplay {
 		
 	}
 	
+	public Boolean isGreen(Float h, Float s, Float b){
+		return h >= 85 && h < 180 && s >= 28 && s <= 100 && b >= 28 && b <= 100; 
+	}
+
 	public BufferedImage GreenBackground(String foreground, String background) {
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		BufferedImage bgImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -140,9 +144,7 @@ public class ImageDisplay {
 				Float saturation = hsb[1]*100;
 				Float brightness = hsb[2]*100;
 				//replace green screen
-				if (hue >= 85 && hue < 180 &&
-					saturation >= 28 && saturation <= 100 &&
-					brightness >= 28 && brightness <= 100 ) {
+				if (isGreen(hue, saturation, brightness)) {
 					img.setRGB(i, j, bgImg.getRGB(i, j));
 				}
 				// else if(hue >= 85 && hue < 180 &&
