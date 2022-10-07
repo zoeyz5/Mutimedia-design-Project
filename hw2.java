@@ -127,7 +127,7 @@ public class ImageDisplay {
 		readImageRGB(width, height, foreground, img);
 		readImageRGB(width, height, background, bgImg);
 		
-		float[] hsv = new float[3];
+		float[] hsb = new float[3];
 		for(int i = 0; i < width; i++)
 		{
 			for(int j = 0; j < height; j++)
@@ -135,27 +135,32 @@ public class ImageDisplay {
 				Color c = new Color(img.getRGB(i, j));
 				Color bgColor = new Color(bgImg.getRGB(i, j));
 				//convert RGB to HUV
-				Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsv);
-				Float hue = hsv[0]*360;
-				Float saturation = hsv[1]*100;
-				Float brightness = hsv[2]*100;
+				Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsb);
+				Float hue = hsb[0]*360;
+				Float saturation = hsb[1]*100;
+				Float brightness = hsb[2]*100;
 				//replace green screen
-				if (hue >= 80 && hue < 180 &&
-					saturation >= 25 && saturation <= 100 &&
-					brightness >= 25 && brightness <= 90 ) {
+				if (hue >= 85 && hue < 180 &&
+					saturation >= 28 && saturation <= 100 &&
+					brightness >= 28 && brightness <= 100 ) {
 					img.setRGB(i, j, bgImg.getRGB(i, j));
 				}
+				// else if(hue >= 85 && hue < 180 &&
+				// 		saturation < 28 &&
+				// 		brightness < 28 ){} 
+
+
 
 				//replace green boundary
-				else if( ((hue > 180 && hue <= 200 )||(hue >= 60 && hue < 80 ))&&
-						brightness >= 40){
-							//System.out.println("boundary");
-							int newGreen = bgColor.getGreen();
-							int Red = (c.getRed()+bgColor.getRed())/2;
-							int Blue = (c.getBlue()+bgColor.getBlue())/2;
-							Color replaceC = new Color(newGreen, Red, Blue);
-							img.setRGB(i, j, replaceC.getRGB());
-						}
+				// else if( ((hue > 180 && hue <= 200 )||(hue >= 60 && hue < 80 ))&&
+				// 		brightness >= 40){
+				// 			//System.out.println("boundary");
+				// 			int newGreen = bgColor.getGreen();
+				// 			int Red = (c.getRed()+bgColor.getRed())/2;
+				// 			int Blue = (c.getBlue()+bgColor.getBlue())/2;
+				// 			Color replaceC = new Color(newGreen, Red, Blue);
+				// 			img.setRGB(i, j, replaceC.getRGB());
+				// 		}
 			}
 		}
 		
