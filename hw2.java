@@ -122,7 +122,13 @@ public class ImageDisplay {
 	}
 	
 	public Boolean isGreen(Float h, Float s, Float b){
-		return h >= 85 && h < 180 && s >= 28 && s <= 100 && b >= 28 && b <= 100; 
+		return h >= 85 && h < 180 && s >= 30 && s <= 100 && b >= 30 && b <= 100; 
+	}
+
+	public Boolean isBoundary(Float h, Float s, Float b){
+		return (h >= 85 && h < 180 && s < 30 && b < 30) || 
+				(h < 85 && h >= 60 && s >= 10 && s <= 100 && b >= 10 && b <= 100)||
+				(h <= 195 && h > 180 && s >= 10 && s <= 100 && b >= 10 && b <= 100);
 	}
 
 	public BufferedImage GreenBackground(String foreground, String background) {
@@ -137,7 +143,6 @@ public class ImageDisplay {
 			for(int j = 0; j < height; j++)
 			{
 				Color c = new Color(img.getRGB(i, j));
-				Color bgColor = new Color(bgImg.getRGB(i, j));
 				//convert RGB to HUV
 				Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsb);
 				Float hue = hsb[0]*360;
@@ -147,11 +152,33 @@ public class ImageDisplay {
 				if (isGreen(hue, saturation, brightness)) {
 					img.setRGB(i, j, bgImg.getRGB(i, j));
 				}
-				// else if(hue >= 85 && hue < 180 &&
-				// 		saturation < 28 &&
-				// 		brightness < 28 ){} 
-
-
+				else if(isBoundary(hue, saturation, brightness)){
+					int r = 0;
+					int g = 0;
+					int b = 0;
+					int count = 0;
+					if(i>1 && i < 639 && j>1 && j<479){
+						for(int w = i-1; w <= i+1; w++){
+							for(int h = j-1; h<= j+1; h++){
+								Color tmp = new Color(img.getRGB(w, h));
+								Color.RGBtoHSB(tmp.getRed(), tmp.getGreen(), tmp.getBlue(), hsb);
+								if(!isGreen(hsb[0]*360, hsb[1]*100, hsb[2]*100)&&
+									!isBoundary(hsb[0]*360, hsb[1]*100, hsb[2]*100)){
+									r+= tmp.getRed();
+									g+= tmp.getGreen();
+									b+= tmp.getBlue();
+									count ++;
+								}
+								
+							}
+						}
+						r = r/count;
+						g = g/count;
+						b = b/count;
+						Color replaceC = new Color(r,g,b);
+						img.setRGB(i, j, replaceC.getRGB());
+					}
+				}
 
 				//replace green boundary
 				// else if( ((hue > 180 && hue <= 200 )||(hue >= 60 && hue < 80 ))&&
@@ -214,7 +241,7 @@ public class ImageDisplay {
 			for (int i = 0; i < foregroundF.size(); i++) {
 				try {
 					ren.playVideo(ren.GreenBackground(foregroundF.get(i), backgroundF.get(i)));
-					Thread.sleep(41); 
+					Thread.sleep(42); 
 					ren.frame.getContentPane().revalidate(); 
    					ren.frame.getContentPane().repaint();
 				} catch (Exception e) {
@@ -226,7 +253,7 @@ public class ImageDisplay {
 			for (int i = 1; i < foregroundF.size(); i++) {
 				try {
 					ren.playVideo(ren.substractBackGround(foregroundF.get(i-1), foregroundF.get(i), backgroundF.get(i)));
-					Thread.sleep(41); 
+					Thread.sleep(42); 
 					ren.frame.getContentPane().revalidate(); 
    					ren.frame.getContentPane().repaint();
 				} catch (Exception e) {
