@@ -122,12 +122,12 @@ public class ImageDisplay {
 	}
 	
 	public Boolean isGreen(Float h, Float s, Float b){
-		return h >= 85 && h < 180 && s >= 30 && s <= 100 && b >= 30 && b <= 100; 
+		return h >= 80 && h < 180 && s >= 30 && s <= 100 && b >= 30 && b <= 100; 
 	}
 
 	public Boolean isBoundary(Float h, Float s, Float b){
-		return (h >= 85 && h < 180 && s < 30 && b < 30) || 
-				(h < 85 && h >= 60 && s >= 10 && s <= 100 && b >= 10 && b <= 100)||
+		return (h >= 80 && h < 180 && s < 30 && b < 30) || 
+				(h < 80 && h >= 60 && s >= 10 && s <= 100 && b >= 10 && b <= 100)||
 				(h <= 195 && h > 180 && s >= 10 && s <= 100 && b >= 10 && b <= 100);
 	}
 
@@ -157,9 +157,9 @@ public class ImageDisplay {
 					int g = 0;
 					int b = 0;
 					int count = 0;
-					if(i>1 && i < 639 && j>1 && j<479){
-						for(int w = i-1; w <= i+1; w++){
-							for(int h = j-1; h<= j+1; h++){
+					if(i>2 && i < 638 && j>2 && j<478){
+						for(int w = i-2; w <= i+2; w++){
+							for(int h = j-2; h<= j+2; h++){
 								Color tmp = new Color(img.getRGB(w, h));
 								Color.RGBtoHSB(tmp.getRed(), tmp.getGreen(), tmp.getBlue(), hsb);
 								if(!isGreen(hsb[0]*360, hsb[1]*100, hsb[2]*100)&&
