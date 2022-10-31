@@ -23,30 +23,22 @@ public class ImageCompression {
 	double b_channel[][] = new double[height][width];
 
 	private double[][] encode(double[][] matrix, int width, int height) {
-		int mid = width/2;
 		double[][] tmp1 = new double[height][width];
 		double[][] tmp2 = new double[height][width];
 		//row
 		for (int i = 0; i < height; i++) {
-			//L
-			for (int j = 1, k = 0; j < width; j+=2, k++) {
-				tmp1[i][k] = (matrix[i][j]+matrix[i][j-1])/2;
-			}
-			//H
-			for (int j = 1, k = mid; j < width; j+=2, k++) {
-				tmp1[i][k] = (matrix[i][j-1]-matrix[i][j])/2;
+			for(int index = 0; index < width/2; index++){
+				tmp1[i][index] = (matrix[i][2 * index] + matrix[i][2 * index + 1]) / 2; //L
+				tmp1[i][width/2 + index] = (matrix[i][2 * index] - matrix[i][2 * index + 1]) / 2; //H
 			}
 		}
 		//col
 		for (int j = 0; j < width; j++) {
-			//L
-			for (int i = 1, k = 0; i < height; i+=2, k++) {
-				tmp2[k][j] = (tmp1[i][j]+tmp1[i-1][j])/2;
+			for (int index = 0; index < height/2; index++) {
+				tmp2[index][j] = (tmp1[2 * index][j]+tmp1[2 * index + 1][j])/2; //L
+				tmp2[height/2 + index][j] = (tmp1[2 * index][j]-tmp1[2 * index + 1][j])/2; //H
 			}
-			//H
-			for (int i = 1, k = mid; i < height; i+=2, k++) {
-				tmp2[k][j] = (tmp1[i][j]-tmp1[i-1][j])/2;
-			}
+	
 		}
 		//filter
 		for (int i = 0; i < N; i++) {
@@ -62,30 +54,23 @@ public class ImageCompression {
 	}
 
 	private double[][] decode(double[][] matrix, int width, int height) {
-		int mid = height/2;
 		double[][] tmp1 = new double[height][width];
 		double[][] tmp2 = new double[height][width];
 
 		//row
 		for (int i = 0; i < height; i++) {
 			//L
-			for (int j = 0, k = 0; j < mid; j++, k+=2) {
-				tmp1[i][k] = (matrix[i][j]+matrix[i][j+mid]);
-			}
-			//H
-			for (int j = 0, k = 1; j < mid; j++, k+=2) {
-				tmp1[i][k] = (matrix[i][j]-matrix[i][j+mid]);
+			for (int index = 0; index < width/2; index++) {
+				tmp1[i][2 * index] = matrix[i][index]+matrix[i][index+width/2];
+				tmp1[i][2 * index + 1] = matrix[i][index]-matrix[i][index+width/2];
 			}
 		}
 		//col
 		for (int j = 0; j < width; j++) {
 			//L
-			for (int i = 0, k = 0; i < mid; i++, k+=2) {
-				tmp2[k][j] = (tmp1[i][j]+tmp1[i+mid][j]);
-			}
-			//H
-			for (int i = 0, k = 1; i < mid; i++, k+=2) {
-				tmp2[k][j] = (tmp1[i][j]-tmp1[i+mid][j]);
+			for (int index = 0; index < height/2; index++) {
+				tmp2[2 * index][j] = tmp1[index][j]+tmp1[index + height/2][j];
+				tmp2[2 * index + 1][j] = (tmp1[index][j]-tmp1[index + height/2][j]);
 			}
 		}
 		//filter
