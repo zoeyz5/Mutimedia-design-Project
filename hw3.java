@@ -116,13 +116,13 @@ public class ImageCompression {
 			raf.read(bytes);
 
 			int ind = 0;
-			for(int y = 0; y < height; y++)
+			for(int i = 0; i < height; i++)
 			{
 				for(int j = 0; j < width; j++)
 				{
-					r_channel[y][j] = bytes[ind]&0xff;
-					g_channel[y][j] = bytes[ind+height*width]&0xff;
-					b_channel[y][j] = bytes[ind+height*width*2]&0xff;
+					r_channel[i][j] = bytes[ind]&0xff;
+					g_channel[i][j] = bytes[ind+height*width]&0xff;
+					b_channel[i][j] = bytes[ind+height*width*2]&0xff;
 
 					ind++;
 				}
@@ -190,8 +190,8 @@ public class ImageCompression {
 				r = (int)r_channel[i][j];
 				g = (int)g_channel[i][j];
 				b = (int)b_channel[i][j];
-				int val = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-    			imgOne.setRGB(j,i,val);
+				int rgb = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+    			imgOne.setRGB(j,i,rgb);
 			}
 		}
 		// Use label to display the image
