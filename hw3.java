@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 
-public class JPG2000 {
+public class ImageCompression {
 
 	JFrame frame;
 	JLabel lbIm1;
@@ -61,7 +61,7 @@ public class JPG2000 {
 		return matrix;
 	}
 
-	private double[][] decode(double[][] x, int width, int height) {
+	private double[][] decode(double[][] matrix, int width, int height) {
 		int mid = height/2;
 		double[][] tmp1 = new double[height][width];
 		double[][] tmp2 = new double[height][width];
@@ -70,11 +70,11 @@ public class JPG2000 {
 		for (int i = 0; i < height; i++) {
 			//L
 			for (int j = 0, k = 0; j < mid; j++, k+=2) {
-				tmp1[i][k] = (x[i][j]+x[i][j+mid]);
+				tmp1[i][k] = (matrix[i][j]+matrix[i][j+mid]);
 			}
 			//H
 			for (int j = 0, k = 1; j < mid; j++, k+=2) {
-				tmp1[i][k] = (x[i][j]-x[i][j+mid]);
+				tmp1[i][k] = (matrix[i][j]-matrix[i][j+mid]);
 			}
 		}
 		//col
@@ -92,13 +92,13 @@ public class JPG2000 {
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				if (i < height && j < width) {
-					x[i][j] = tmp2[i][j];
+					matrix[i][j] = tmp2[i][j];
 				} else {
-					x[i][j] = 0;
+					matrix[i][j] = 0;
 				}
 			}
 		}
-		return x;
+		return matrix;
 	}
 
 	private void readImageRGB(int width, int height, String imgPath, BufferedImage img)
@@ -139,62 +139,59 @@ public class JPG2000 {
 		}
 	}
 	
-	private double[][] DWT(double[][] data, int levels, int channel)
+	private double[][] DWT(double[][] matrix, int levels, int channel)
 	{
-		int w = data.length;
-		int h = data[0].length;
-		h = w = N;
+		int w = width;
+		int h = height;
 		for (int i = 0; i < levels; i++)
 		{
-			data = encode(data, w, h);
-			w >>= 1;
-			h >>= 1;
-			double temp [][] = new double[N][N];
-			for (int j = 0; j < h; j++) {
-				for (int k = 0; k < w; k++) {
-					 temp[j][k] = data[j][k];
+			matrix = encode(matrix, w, h);
+
+			double tmp [][] = new double[N][N];
+			for (int j = 0; j < h/2; j++) {
+				for (int k = 0; k < w/2; k++) {
+					 tmp[j][k] = matrix[j][k];
 				}
 			}
-			if (channel == 0) newR.add(temp);
-			else if (channel == 1) newG.add(temp);
-			else newB.add(temp);
+			if (channel == 0) newR.add(tmp);
+			else if (channel == 1) newG.add(tmp);
+			else newB.add(tmp);
 		}
 
-		return data;
+		return matrix;
 	} 
 
-	private double[][] IDWT(double[][] data, int levels)
+	private double[][] IDWT(double[][] matrix, int levels)
 	{
-		int w = data.length;
-		int h = data[0].length;
+		int w = width;
+		int h = height;
 
 		for (int i = 0; i < levels - 1; i++)
 		{
-			h >>= 1;
-			w >>= 1;
+			h /= 2;
+			w /= 2;
 		}
 
 		for (int i = 0; i < levels; i++)
 		{
-			data = decode(data, w, h);
-			h <<= 1;
-			w <<= 1;
+			matrix = decode(matrix, w, h);
+			h *= 2;
+			w *= 2;
 		}
 
-		return data;
+		return matrix;
 	}
 
-	public void show2D(int len) {
-		imgOne = new BufferedImage(len, len, BufferedImage.TYPE_INT_RGB);
-		//System.out.println(len+ " : " + start + " : " + Y.length);
+	public void showIms(int width) {
+		imgOne = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
 		int r, g, b;
-		for (int i = 0; i < len; i++) {
-			for (int j = 0; j < len; j++) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < width; j++) {
 				r = (int)r_channel[i][j];
 				g = (int)g_channel[i][j];
 				b = (int)b_channel[i][j];
 				int val = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-    			imgOne.setRGB(j,i,val);//it just like scan row by row from col 1 to n
+    			imgOne.setRGB(j,i,val);
 			}
 		}
 		// Use label to display the image
@@ -210,58 +207,44 @@ public class JPG2000 {
 		c.weightx = 0.5;
 		c.gridx = 0;
 		c.gridy = 0;
-
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 1;
 		frame.getContentPane().add(lbIm1, c);
 
 		frame.pack();
 		frame.setVisible(true);
 	}
 	public static void main(String[] args) {
-		JPG2000 j2 = new JPG2000();
-		int mode = Integer.parseInt(args[1]);
-		Boolean presentAll = false;
-		if (mode < 0) {
-			mode = 0;
-			presentAll = true;	
-		}
+		ImageCompression ren = new ImageCompression();
+		int L = Integer.parseInt(args[1]);
+
 		// Read in the specified image
-		j2.imgOne = new BufferedImage(j2.width, j2.height, BufferedImage.TYPE_INT_RGB);
-		j2.readImageRGB(j2.width, j2.height, args[0], j2.imgOne);
+		ren.imgOne = new BufferedImage(ren.width, ren.height, BufferedImage.TYPE_INT_RGB);
+		ren.readImageRGB(ren.width, ren.height, args[0], ren.imgOne);
 
-		//if it is level 9 then just show
-		if (mode == 9) {
-			j2.show2D(j2.width);
-			return;
-		}
-
-		if (presentAll) {
-			//show original pic first
-			//j2.show2D(j2.width);
-			j2.DWT(j2.r_channel, 9, 0);
-			j2.DWT(j2.g_channel, 9, 1);
-			j2.DWT(j2.b_channel, 9, 2);
-			for (int i = 0; i < 8; i++) {
-				j2.r_channel = j2.IDWT(j2.newR.get(8-i), 9-i);
-				j2.g_channel = j2.IDWT(j2.newG.get(8-i), 9-i);
-				j2.b_channel = j2.IDWT(j2.newB.get(8-i), 9-i);
-				j2.show2D(j2.width);
+		if (L == -1){
+			ren.r_channel = ren.DWT(ren.r_channel, 9, 0);
+			ren.g_channel = ren.DWT(ren.g_channel, 9, 1);
+			ren.b_channel = ren.DWT(ren.b_channel, 9, 2);
+			for (int i = 0; i <= 8; i++) {
+				ren.r_channel = ren.IDWT(ren.newR.get(8-i), 9-i);
+				ren.g_channel = ren.IDWT(ren.newG.get(8-i), 9-i);
+				ren.b_channel = ren.IDWT(ren.newB.get(8-i), 9-i);
+				ren.showIms(ren.width);
+				//System.out.println("level " + i);
 			}
-			j2.readImageRGB(j2.width, j2.height, args[0], j2.imgOne);
-			j2.show2D(j2.width);
-		} else {
-			j2.r_channel = j2.DWT(j2.r_channel, 9-mode, 0);
-			j2.g_channel = j2.DWT(j2.g_channel, 9-mode, 1);
-			j2.b_channel = j2.DWT(j2.b_channel, 9-mode, 2);
-			//j2.show2D(j2.width);
-			//System.out.println("I give you "+ j2.yy.length);
-			j2.r_channel = j2.IDWT(j2.newR.get(8-mode), 9-mode);
-			j2.g_channel = j2.IDWT(j2.newG.get(8-mode), 9-mode);
-			j2.b_channel = j2.IDWT(j2.newB.get(8-mode), 9-mode);
-			j2.show2D(j2.width);
+			ren.readImageRGB(ren.width, ren.height, args[0], ren.imgOne);
+			ren.showIms(ren.width);
+		}
+		else if(L == 9) {
+			ren.showIms(ren.width);
+		}
+		else {
+			ren.r_channel = ren.DWT(ren.r_channel, 9-L, 0);
+			ren.g_channel = ren.DWT(ren.g_channel, 9-L, 1);
+			ren.b_channel = ren.DWT(ren.b_channel, 9-L, 2);
+			ren.r_channel = ren.IDWT(ren.newR.get(8-L), 9-L);
+			ren.g_channel = ren.IDWT(ren.newG.get(8-L), 9-L);
+			ren.b_channel = ren.IDWT(ren.newB.get(8-L), 9-L);
+			ren.showIms(ren.width);
 		}
 	}
-
 }
