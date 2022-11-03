@@ -1,11 +1,11 @@
 # HW1 Quantization and Subsampling
 Your program will be invoked using seven parameters where
-YourProgram.exe C:/myDir/myImage.rgb Y U V Sw Sh A
-\\• The first parameter is the name of the image, which will be provided in an 8 bit
+YourProgram.exe C:/myDir/myImage.rgb Y U V Sw Sh A\
+• The first parameter is the name of the image, which will be provided in an 8 bit
 per channel RGB format (Total 24 bits per pixel). You may assume that all
 images will be of the same size for this assignment (HD size = 1920wx1080h),
-more information on the image format will be placed on the class website
-\\• The next three parameters are integers control the subsampling of your Y U and
+more information on the image format will be placed on the class website\
+• The next three parameters are integers control the subsampling of your Y U and
 V spaces respectively. For sake of simplicity, we will follow the convention that
 subsampling occurs only along the width dimension and not the height. Each of
 these parameters can take on values from 1 to n for some n, 1 suggesting no sub
