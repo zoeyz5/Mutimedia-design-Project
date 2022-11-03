@@ -38,8 +38,7 @@ assignments).\
 • The second parameter n is an integral number from 0 to 9 that defines the low pass level to be
 used in your decoding. For a given n, this translates to using 2n low pass coefficients in rows
 and columns respectively to use in the decoding process . Additionally, n could also take a
-value of -1 to show progressive decoding. Please see the implementation section for an
-explanation\
+value of -1 to show progressive decoding. 
 <img width="1440" alt="Screen Shot 2022-11-02 at 6 34 55 PM" src="https://user-images.githubusercontent.com/20672326/199632745-c7e45fe4-905b-4d40-b2d9-ed5d8741e7d5.png">
 
 
